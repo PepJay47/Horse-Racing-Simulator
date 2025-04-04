@@ -14,26 +14,22 @@ public class Main {
 
         Race newRace = new Race(10);
 
-        newRace.addHorse(new Horse('0',"danny",0.6));
+        newRace.addHorse(new Horse('0',"davud",4));
         newRace.addHorse(new Horse('♞',"man",0.3));
         newRace.addHorse(new Horse('Ω',"davud",0.4));
         newRace.addHorse(new Horse('$',"dan",0.6));
         newRace.addHorse(new Horse('£',"nesta",0.6));
         newRace.addHorse(new Horse('K',"frank",0.7));
         newRace.addHorse(new Horse('A',"shamima",0.7));
-        newRace.addHorse(new Horse('B',"samira",0.9));
-
-
-
-
+        newRace.addHorse(new Horse('B',"samira",0.8));
 
 
         newRace.startRace();
-
+//        testMoveForwardMethod();
 //        testConstructor();
 //        testGetters();
 //        setConfidenceTest();
-//        testMoveForward();
+
 //        testGoBackToStart();
 //        testSetConfidence();
 //        testSetSymbolInHorseClass();
