@@ -96,6 +96,22 @@ public class ViewRacePanel extends JPanel {
             ghc2d.drawString(Integer.toString(track_Length*i/4),a+5,15);
         }
 
+        //add the track shape markers
+        String Shape_of_Track = mainGUI.getShapeOfTrack();
+        if(Shape_of_Track.equals("Figure-Eight")){
+            ghc2d.setColor(Color.RED);
+            int Xcen = width/2;
+            ghc2d.drawLine(Xcen-10,0,Xcen-10,height);
+            ghc2d.drawString("Crossing", Xcen-40, 30);
+
+        } else if (Shape_of_Track.equals("Zigzag")) {
+            ghc2d.setColor(Color.RED);
+            for(int i=1; i<=4; i++){
+                int xTurn = width * i / 5;
+                ghc2d.drawLine(xTurn,0,xTurn,height);
+                ghc2d.drawString("Turn", xTurn-10, 30);
+            }
+        }
 
 
         for(int i = 0; i < horses.size(); i++){

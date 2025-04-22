@@ -16,6 +16,7 @@ public class PanelForGamble extends JPanel {
     private JTextField textField_GambleAmount;
     private JLabel label_PossibleWinnings;
     private JButton button_MakeBet;
+    private JLabel label_Stats;
 
 
     private JTable historyOfBetsTable;
@@ -221,8 +222,8 @@ public class PanelForGamble extends JPanel {
 
         //betting stats added
         JPanel panel_stats = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel label_stats = new JLabel("Bets Rate Success: 0 | Total Earnings: £0.00");
-        panel_stats.add(label_stats);
+        label_Stats = new JLabel("Bets Rate Success: 0 | Total Earnings: £0.00");
+        panel_stats.add(label_Stats);
         panel.add(panel_stats, BorderLayout.SOUTH);
 
         return panel;
@@ -314,6 +315,12 @@ public class PanelForGamble extends JPanel {
                 //zigzag is somewhat unpredictable
                 adjustedOdds *= 1.3;
             }
+            /*take in to consideration if the horse has fallen recently,
+            * because a horse that has fallen may be at risk therefore, increase the odds
+            * by 20 percent for fallen horses*/
+            if (horse.hasFallen()){
+                adjustedOdds *= 1.2;
+            }
 
             //simulate betting(add randomness)
             adjustedOdds *= (0.9+ Math.random()*0.2);
@@ -339,6 +346,10 @@ public class PanelForGamble extends JPanel {
 
         try{
             gableAmount = Double.parseDouble(textField_GambleAmount.getText());
+            if(gableAmount<=0){
+                label_PossibleWinnings.setText("Invalid Amount");
+                return;
+            }
         } catch (NumberFormatException e) {
             label_PossibleWinnings.setText("Amount Invalid");
             return;
@@ -436,7 +447,7 @@ public class PanelForGamble extends JPanel {
 
                 if(hasWon){
                     bet.setResult("Won");
-                    bet.setGamble_amount(bet.getGamble_amount() * bet.getGamble_odds());
+                    bet.setGamble_winnings(bet.getGamble_amount() * bet.getGamble_odds());
                     inSimulatorBalance +=bet.getGamble_winnings();
 
                 }else{
@@ -484,9 +495,8 @@ public class PanelForGamble extends JPanel {
         double rateOFSuccess = (sumBets>0) ? ((double) sumWonBets / sumBets) * 100 : 0.0;
 
         //update the stats label
-        JPanel panel_stats = (JPanel) historyOfBetsTable.getParent().getParent().getComponent(1);
-        JLabel label_stats = (JLabel) panel_stats.getComponent(0);
-        label_stats.setText("Betting Rate Success: " + String.format("%.2f", rateOFSuccess) +
+
+        label_Stats.setText("Betting Rate Success: " + String.format("%.2f", rateOFSuccess) +
                 "% | Total Earnings: £" + String.format("%.2f", totalEarnings));
     }
 

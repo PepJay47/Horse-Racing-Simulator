@@ -15,6 +15,7 @@ public class Horse
     private boolean hasFallen;
     private double horseConfidence;
     private static ArrayList<Horse> madeHorses = new ArrayList<>();
+    private double factorForSpeed =1.0;
 
 
 
@@ -88,8 +89,10 @@ public class Horse
     }
 
     public void moveForward() {
-        if(!hasFallen){
-            this.distanceTravelled++;
+        if(!hasFallen) {
+            if (Math.random() < factorForSpeed) {
+                this.distanceTravelled++;
+            }
         }
     }
 
@@ -107,6 +110,32 @@ public class Horse
 
     public void setSymbol(char newSymbol) {
         this.horseSymbol = newSymbol;
+    }
+
+    //adjust their speed based off of the condition of the track
+    public void speedForTrackAdjustment(String shapeOfTrack, String conditionOfTrack, int position, int tracksLength){
+        factorForSpeed = 1.0;
+
+        if(shapeOfTrack.equals("Figure-Eight")){
+
+            boolean isAtCrossingCntr = (position > tracksLength/2-2 && position < tracksLength/2+2);
+
+            if(isAtCrossingCntr){
+                factorForSpeed = 0.5;
+            }
+        }else if(shapeOfTrack.equals("Zigzag")){
+            boolean isAtTurn = (position % 5 == 0);
+
+            if(isAtTurn){
+                factorForSpeed = 0.8;
+            }
+        }
+
+        if (conditionOfTrack.equals("Muddy")){
+            factorForSpeed *= 0.9;
+        }else if (conditionOfTrack.equals("Icy")){
+            factorForSpeed *= 0.8;
+        }
     }
 
 }

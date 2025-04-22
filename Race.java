@@ -13,7 +13,8 @@ public class Race
 {
     private int raceLength;
     private ArrayList<Horse> horses;
-
+    private String shapeOfTrack;
+    private String tracksCondition;
 
 
 
@@ -29,6 +30,15 @@ public class Race
         raceLength = distance;
         this.horses = new ArrayList<>();
 
+    }
+
+
+    //making constructor to receive information about the track from the GUI()
+    public Race(int distance,String shape, String condition){
+        this.shapeOfTrack= shape;
+        this.tracksCondition = condition;
+        this.raceLength = distance;
+        this.horses = new ArrayList<>();
     }
 
     /**
@@ -61,14 +71,18 @@ public class Race
             }
         }
 
-
+        //making changes here for the GUI integration
+        //adjusting the speed in the sense that the horses speed is affected by the track condition/factors
 
         while (!finished) {
             //move each horse
 
             for(Horse horse : horses){
 
-                moveHorse(horse);
+               if(horse != null && !horse.hasFallen()){
+                   horse.speedForTrackAdjustment(shapeOfTrack,tracksCondition, horse.getDistanceTravelled(), raceLength);
+                   moveHorse(horse);
+               }
 
             }
 
@@ -163,22 +177,65 @@ public class Race
             return;
         }
 
-        if  (!theHorse.hasFallen())
-        {
-            //the probability that the horse will move forward depends on the confidence;
-            if (Math.random() < theHorse.getConfidence())
-            {
+        if  (!theHorse.hasFallen()) {
+            double movementChance = theHorse.getConfidence();
+            double chanceOfFalling = 0.1*theHorse.getConfidence()*theHorse.getConfidence();
+
+
+            //movement and chance of falling based off of the shape of the track
+            if(shapeOfTrack.equals("Figure-Eight")){
+            //critical points of the figure 8 track during tight turns and crossings
+                int position = theHorse.getDistanceTravelled();
+
+                boolean isAtCentreCrossing = (position > raceLength/2-2 && position < raceLength/2+2);
+
+                boolean duringTightTurn = (position % 8 == 0);
+
+                if(isAtCentreCrossing){
+                    //at the centre the horse has a higher chance of falling and lower chance of moving
+                    movementChance *=0.7;
+                    chanceOfFalling *= 1.8;
+
+                    System.out.println(theHorse.getName()+" has fallen at the centre crossing");
+                }else if(duringTightTurn){
+                    //moderate impact
+                    movementChance *=0.85;
+                    chanceOfFalling *= 1.4;
+                    System.out.println(theHorse.getName()+" is currently at a tight turn");
+                }
+            }else if(shapeOfTrack.equals("Zigzag")){
+                int position = theHorse.getDistanceTravelled();
+
+                boolean atTurn = (position % 5 == 0);
+
+                if(atTurn){
+                    movementChance *=0.75;
+                    chanceOfFalling *= 1.5;
+
+                    System.out.println(theHorse.getName()+" is at a turn on the zigzag track");
+                }
+            }
+            if(tracksCondition.equals("Muddy")){
+                movementChance *= 0.8;
+                chanceOfFalling *= 1.2;
+            }else if(tracksCondition.equals("icy")){
+                movementChance *= 0.7;
+                chanceOfFalling *= 1.6;
+            }
+
+            //make decisions about the horse's movement
+            if(Math.random() < movementChance){
                 theHorse.moveForward();
             }
 
-            //the probability that the horse will fall is very small (max is 0.1)
-            //but will also will depends exponentially on confidence
-            //so if you double the confidence, the probability that it will fall is *2
-
-            if (Math.random() < (0.1*theHorse.getConfidence()*theHorse.getConfidence())){
+            if(Math.random() < chanceOfFalling){
                 theHorse.fall();
+                System.out.println(theHorse.getName()+" has fallen");
             }
+
+
         }
+
     }
 
     /**

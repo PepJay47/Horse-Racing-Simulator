@@ -101,7 +101,8 @@ public class RacingGUI extends JFrame {
     }
 
     public void startRace() {
-        activeRace = new Race(lengthOfTrack);
+        //activeRace = new Race(lengthOfTrack);
+        activeRace = new Race(lengthOfTrack,shapeOfTrack,condition_OfTrack);
 
          for (Horse horse : horses) {
              activeRace.addHorse(horse);
