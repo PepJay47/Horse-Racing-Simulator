@@ -1,8 +1,5 @@
 import java.util.ArrayList;
 
-/**
- * Models a horse with breed and gear effects on speed and confidence.
- */
 public class Horse {
     private String horseName;
     private char horseSymbol;
