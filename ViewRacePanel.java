@@ -1,252 +1,214 @@
+// ViewRacePanel.java
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import javax.swing.Timer;
 
 public class ViewRacePanel extends JPanel {
-
-    private RacingGUI mainGUI;
-
-    private Race activeRace;
-    private JPanel trackPanel;
-    private JTextArea raceInfo;
-
-    private boolean raceProgress;
+    private RacingGUI      mainGUI;
+    private Race           activeRace;
+    private JPanel         trackPanel;
+    private JTextArea      raceInfo;
+    private boolean        raceInProgress;
+    private Runnable       onRaceComplete;
 
     public ViewRacePanel(RacingGUI gui) {
         this.mainGUI = gui;
         setLayout(new BorderLayout());
-
         trackPanel = createTrackPanel();
         add(new JScrollPane(trackPanel), BorderLayout.CENTER);
-
-        JPanel panelInformation = createInformationPanel();
-        add(panelInformation, BorderLayout.SOUTH);
-
+        add(createInformationPanel(), BorderLayout.SOUTH);
     }
 
     private JPanel createTrackPanel() {
-        JPanel panel = new JPanel(){
-          @Override
-          protected void paintComponent(Graphics ghc){
-              super.paintComponent(ghc);
-              drawTrack(ghc);
-          }
+        JPanel p = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                drawTrack((Graphics2D) g);
+            }
         };
-        panel.setPreferredSize(new Dimension(700,400));
-        panel.setBackground(Color.LIGHT_GRAY);
-        return panel;
+        p.setPreferredSize(new Dimension(700,400));
+        p.setBackground(Color.LIGHT_GRAY);
+        return p;
     }
 
     private JPanel createInformationPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Race Info"));
-
         raceInfo = new JTextArea(5, 40);
         raceInfo.setEditable(false);
-
         panel.add(new JScrollPane(raceInfo), BorderLayout.CENTER);
         return panel;
     }
 
-    private void drawTrack(Graphics ghc){
-        Graphics2D ghc2d = (Graphics2D) ghc;
 
-        ghc2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    private Color applyHorseCoatColour(String c){
 
-        int width = trackPanel.getWidth();
-        int height = trackPanel.getHeight();
+        switch (c){
+            case "Sorrel": return new Color(205,92,92);
+            case "Gray": return Color.LIGHT_GRAY;
+            case "Roan": return new Color(178,34,34);
+            case "Palomino": return new Color(218,165,32);
+            case "Black": return Color.BLACK;
+            default: return new Color(0,0,150);
 
-        //background
-        String conditionTrack = mainGUI.getCondition_OfTrack();
-        Color colourOFTrack = null;
 
-        switch(conditionTrack){
-            case "Muddy":
-                colourOFTrack = new Color(112,84,62);
-                break;
-            case "Icy":
-                colourOFTrack = new Color(32,195,208);
-                break;
-            case "Dry":
-                colourOFTrack = new Color(210,180,180);
-                break;
         }
-        ghc2d.setColor(colourOFTrack);
-        ghc2d.fillRect(0, 0, width, height);
+    }
 
-        if(activeRace ==null){
-            ghc2d.setColor(Color.BLACK);
-            ghc2d.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
-            ghc2d.drawString("No Race at the Moment", width/2-100, height/2);
+    private void drawTrack(Graphics2D g) {
+        int w = trackPanel.getWidth(), h = trackPanel.getHeight();
+        // draw background based on track condition
+        switch (mainGUI.getCondition_OfTrack()) {
+            case "Muddy": g.setColor(new Color(112,84,62)); break;
+            case "Icy":   g.setColor(new Color(32,195,208));break;
+            default:      g.setColor(new Color(210,180,180));break;
+        }
+        g.fillRect(0,0,w,h);
+
+        if (activeRace == null) {
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
+            g.drawString("No Race at the Moment", w/2 -100, h/2);
             return;
         }
 
-        int track_Length = mainGUI.getLengthOfTrack();
+        int trackLen = mainGUI.getLengthOfTrack();
         ArrayList<Horse> horses = mainGUI.getHorses();
+        int laneH = h / Math.max(horses.size(),1);
 
-        int lane_height = height/ Math.max(horses.size(), 1);
 
-        //track markers indication for the distance
-        ghc2d.setColor(Color.WHITE);
-        for(int i =0; i<=4; i++){
-            int a = (width-40)*i/4;
-            ghc2d.drawLine(a,0,a,height);
-            ghc2d.drawString(Integer.toString(track_Length*i/4),a+5,15);
-        }
-
-        //add the track shape markers
-        String Shape_of_Track = mainGUI.getShapeOfTrack();
-        if(Shape_of_Track.equals("Figure-Eight")){
-            ghc2d.setColor(Color.RED);
-            int Xcen = width/2;
-            ghc2d.drawLine(Xcen-10,0,Xcen-10,height);
-            ghc2d.drawString("Crossing", Xcen-40, 30);
-
-        } else if (Shape_of_Track.equals("Zigzag")) {
-            ghc2d.setColor(Color.RED);
-            for(int i=1; i<=4; i++){
-                int xTurn = width * i / 5;
-                ghc2d.drawLine(xTurn,0,xTurn,height);
-                ghc2d.drawString("Turn", xTurn-10, 30);
-            }
+        g.setColor(Color.WHITE);
+        for (int i=0; i<=4; i++){
+            int x = (w-40)*i/4;
+            g.drawLine(x,0,x,h);
+            g.drawString(""+(trackLen*i/4), x+5, 15);
         }
 
 
-        for(int i = 0; i < horses.size(); i++){
+        for (int i=0; i<horses.size(); i++){
             Horse horse = horses.get(i);
 
-            if(i%2 ==0){
-                ghc2d.setColor(new Color(240, 240, 240,50));
-            }else {
-                ghc2d.setColor(new Color(200, 200, 200, 50));
-            }
-            ghc2d.fillRect(0,i*lane_height,width,lane_height);
-
-            //draw borders for lane
+            g.setColor(i%2==0 ? new Color(240,240,240,50) : new Color(200,200,200,50));
+            g.fillRect(0,i*laneH,w,laneH);
 
 
-            //draw the lane
-            ghc2d.setColor(Color.WHITE);
-            ghc2d.drawLine(0,i*lane_height,width,i*lane_height);
-            ghc2d.drawLine(0,(i+1)*lane_height, width, (i+1)*lane_height);
+            g.setColor(Color.WHITE);
+            g.drawLine(0,i*laneH,w,i*laneH);
+            g.drawLine(0,(i+1)*laneH,w,(i+1)*laneH);
 
-            //draw the horse
-            int X_horse =(int) ((double)horse.getDistanceTravelled()/track_Length * width);
-            int Y_horse = i*lane_height + lane_height/2;
 
-            //horse name drawn
-            ghc2d.setColor(Color.BLACK);
-            ghc2d.setFont(new Font("JetBrains Mono", Font.BOLD, 15));
-            ghc2d.drawString(horse.getName(), 10, Y_horse+5);
+            int xPos = (int)((double)horse.getDistanceTravelled()/trackLen * w);
+            int yMid = i*laneH + laneH/2;
 
-            //confidence
-            ghc2d.drawString("Confidence: "+String.format("%.2f", horse.getConfidence()),width-180, Y_horse-15);
 
-            //draw the horse symbol
-            ghc2d.setFont(new Font("JetBrains Mono", Font.BOLD, 25));
-            if(horse.hasFallen()){
-                ghc2d.setColor(Color.RED);
-                ghc2d.drawString("❌", X_horse, Y_horse);
+            g.setColor(Color.BLACK);
+            g.setFont(new Font("Monospaced", Font.BOLD, 15));
+            g.drawString(horse.getName(), 10, yMid+5);
+            g.drawString("Conf: "+String.format("%.2f", horse.getConfidence()), w-180, yMid-15);
 
-                ghc2d.setFont(new Font("JetBrains Mono", Font.BOLD, 15));
-                ghc2d.drawString("Fallen", X_horse+30, Y_horse);
-            }else{
-                ghc2d.setColor(new Color(0,0,150));
-                ghc2d.drawString(String.valueOf(horse.getSymbol()), X_horse, Y_horse);
 
-                ghc2d.setColor(Color.GREEN);
-                ghc2d.fillRect(0,Y_horse+10, X_horse,3);
+            g.setFont(new Font("Monospaced", Font.BOLD, 25));
+            if (horse.hasFallen()) {
+                g.setColor(Color.RED);
+                g.drawString("❌", xPos, yMid);
+            } else {
+                Color horseCoatColour = applyHorseCoatColour(horse.getColour());
+                g.setColor(horseCoatColour);
+                g.drawString(String.valueOf(horse.getSymbol()),xPos,yMid);
+
+                g.setColor(Color.GREEN);
+                g.fillRect(0,yMid+10,xPos,3);
             }
         }
 
-        ghc2d.setColor(Color.BLACK);
-        ghc2d.setStroke(new BasicStroke(2));
-        ghc2d.drawLine(width -20,0,width -20,height);
 
-        int size_of_checker = 10;
-        for(int sc=0; sc<height; sc+=size_of_checker*2){
-            for(int j=0; j<2; j++){
-                ghc2d.fillRect(width-20,sc+j*size_of_checker,size_of_checker,size_of_checker);
-            }
+        g.setColor(Color.BLACK);
+        g.setStroke(new BasicStroke(2));
+        g.drawLine(w-20,0,w-20,h);
+        int size = 10;
+        for (int y=0; y<h; y+=size*2) {
+            g.fillRect(w-20, y, size, size);
+            g.fillRect(w-20, y+size*1, size, size);
         }
-        ghc2d.setFont(new Font("JetBrains Mono", Font.BOLD, 15));
-        ghc2d.drawString("Finish Line", width - 60, 20);
-
-//
-//
+        g.setFont(new Font("Monospaced", Font.BOLD, 15));
+        g.drawString("Finish", w-60, 20);
     }
 
-    public void setRace(Race race){
-        this.activeRace = race;
-        this.raceProgress = true;
+    /**
+     * Called by RacingGUI to start the race.
+     */
+    public void setRace(Race race) {
+        this.activeRace     = race;
+        this.raceInProgress = true;
         infoUpdate();
 
-        Timer timerReload = new Timer(100,new ActionListener(){
+        // Timer drives the simulation one step at a time
+        new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(raceProgress){
+                if (activeRace.isFinished()) {
+                    ((Timer)e.getSource()).stop();
+                    raceInProgress = false;
+                    infoUpdate();
+                    if (onRaceComplete != null)
+                        onRaceComplete.run();
+                } else {
+                    activeRace.step();
                     trackPanel.repaint();
                     infoUpdate();
-                }else{
-                    ((Timer)e.getSource()).stop();
                 }
             }
-        });
-        timerReload.start();
+        }).start();
     }
 
-    private void infoUpdate(){
-        if(activeRace == null){
+    /** External hook to know when race is done */
+    public void setOnRaceComplete(Runnable r) {
+        this.onRaceComplete = r;
+    }
+
+    /** Force a repaint/info‐update if you need it */
+    public void refresh() {
+        if (raceInProgress) {
+            trackPanel.repaint();
+            infoUpdate();
+        }
+    }
+
+    private void infoUpdate() {
+        if (activeRace == null) {
             raceInfo.setText("No race is in progress");
             return;
         }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Track: ").append(mainGUI.getShapeOfTrack())
+                .append(" (").append(mainGUI.getLengthOfTrack()).append(")\n\n");
 
-        StringBuffer information = new StringBuffer();
-        information.append("Track: ").append(mainGUI.getShapeOfTrack()).append(" (").append(mainGUI.getLengthOfTrack()).append(")\n");
-        information.append("Length: ").append(mainGUI.getLengthOfTrack()).append(" units\n\n");
 
-        ArrayList<Horse> horses = mainGUI.getHorses();
         ArrayList<Horse> winners = new ArrayList<>();
-        boolean allHaveFallen = true;
-
-        for(Horse horse : horses){
-            if(horse.getDistanceTravelled()>= mainGUI.getLengthOfTrack()){
-                winners.add(horse);
-            }
-            if(!horse.hasFallen()){
-                allHaveFallen = false;
-            }
+        boolean allFallen = true;
+        for (Horse h : mainGUI.getHorses()) {
+            if (h.getDistanceTravelled() >= mainGUI.getLengthOfTrack())
+                winners.add(h);
+            if (!h.hasFallen()) allFallen = false;
         }
-        if(!winners.isEmpty()){
-            information.append("The race is finished\n");
 
-            if(winners.size()==1){
-                information.append("Winner:").append(winners.get(0).getName()).append("\n");
-            }else {
-                information.append("Okay now we have a tie between:\n");
-                for(Horse winner : winners){
-                    information.append("-- ").append(winner.getName()).append("\n");
-                }
+        if (!winners.isEmpty()) {
+            sb.append("Race finished!");
+            if (winners.size()==1) {
+                sb.append("\nWinner: ").append(winners.get(0).getName());
+            } else {
+                sb.append("\nTie between:");
+                for (Horse w : winners) sb.append("\n  - ").append(w.getName());
             }
-            raceProgress = false;
-
-        } else if (allHaveFallen) {
-            information.append("The Race is finished\n");
-            information.append("All horse have fallen\n");
-            raceProgress = false;
-        }else{
-            information.append("Race is in progress..\n");
+        } else if (allFallen) {
+            sb.append("All horses have fallen!");
+        } else {
+            sb.append("Race in progress...");
         }
-        raceInfo.setText(information.toString());
+
+        raceInfo.setText(sb.toString());
     }
-
-    public void refresh(){
-        if(raceProgress){
-        trackPanel.repaint();
-        infoUpdate();
-        }
-    }
-
 }
