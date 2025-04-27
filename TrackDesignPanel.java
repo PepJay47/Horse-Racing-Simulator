@@ -7,7 +7,7 @@ public class TrackDesignPanel extends JPanel {
 
     private RacingGUI mainGUI;
 
-    //design components
+
     private JSlider sliderForTrackLength;
     private JLabel labelForTrackLength;
     private JSpinner spinnerForLaneCount;
@@ -99,7 +99,7 @@ public class TrackDesignPanel extends JPanel {
         previewPanelForTrack.repaint();
     }
 
-    //draws track based on selected option
+
     private void drawPreviewTrack(Graphics ghc) {
         Graphics2D ghc2d = (Graphics2D) ghc;
         ghc2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -110,21 +110,20 @@ public class TrackDesignPanel extends JPanel {
         String trackShape = (String) comboBoxForTrackShape.getSelectedItem();
         String trackCondition = (String) comboBoxForTrackCondition.getSelectedItem();
 
-        //set color based on condition of the track selected
         Color ColorOfTrack;
         if(trackCondition.equals("Muddy")){
             ColorOfTrack = new Color(112,84,62);
         } else if (trackCondition.equals("Icy")) {
-             ColorOfTrack = new Color(32,195,208);
+            ColorOfTrack = new Color(32,195,208);
         }else {
             ColorOfTrack = new Color(210,180,180);
         }
 
         ghc2d.setColor(ColorOfTrack);
 
-        //draw the track based on the selected shape
+
         if(trackShape.equals("Oval")){
-            //draw an oval track
+
             int pad=50;
             int widthOval = width - (2*pad);
             int heightOval = height - (2*pad);
@@ -136,11 +135,11 @@ public class TrackDesignPanel extends JPanel {
             }
             ghc2d.fillOval(pad,pad,widthOval,heightOval);
 
-            //draw inside the oval i.e. empty space
+
             ghc2d.setColor(Color.WHITE);
             ghc2d.fillOval(pad+30,pad+30,widthOval-60,heightOval-60);
 
-            //draw the lanes of the track
+
             ghc2d.setColor(Color.BLACK);
             int LANES = (Integer) spinnerForLaneCount.getValue();
             for(int i=0; i<LANES; i++){
@@ -183,11 +182,11 @@ public class TrackDesignPanel extends JPanel {
             int[] pointsX ={pad,pad+widthZigzag/4,pad+widthZigzag/2,pad+(3*widthZigzag/4),pad+widthZigzag};
             int[] pointsY = {pad+heightZigzag/2,pad,pad+heightZigzag,pad,pad+heightZigzag/2};
 
-            //draw path for zigzag
+
             ghc2d.setStroke(new BasicStroke(widthOfTrack));
             ghc2d.drawPolyline(pointsX, pointsY, 5);
 
-            //now the lanes here:
+
             ghc2d.setColor(Color.BLACK);
             ghc2d.setStroke(new BasicStroke(1));
             ghc2d.drawPolyline(pointsX, pointsY, 5);
