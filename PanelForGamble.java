@@ -16,7 +16,6 @@ public class PanelForGamble extends JPanel {
     private JTextField textField_GambleAmount;
     private JLabel label_PossibleWinnings;
     private JButton button_MakeBet;
-    private JLabel label_Stats;
 
 
     private JTable historyOfBetsTable;
@@ -117,7 +116,7 @@ public class PanelForGamble extends JPanel {
 
         String[] name_of_coloumns = {"Horse Name", "Odds"};
         table_OddsModel = new DefaultTableModel(name_of_coloumns,0){
-         @Override
+            @Override
             public boolean isCellEditable(int row,int column) {
                 return false;
             }
@@ -127,7 +126,7 @@ public class PanelForGamble extends JPanel {
         JScrollPane oddsScroll = new JScrollPane(table_odds);
         panel_odds.add(oddsScroll, BorderLayout.CENTER);
 
-        //betting form
+
         JPanel panel_bettingForm = new JPanel(new GridLayout());
         panel_bettingForm.setBorder(BorderFactory.createTitledBorder("Place Your Bet"));
 
@@ -165,7 +164,7 @@ public class PanelForGamble extends JPanel {
         textField_GambleAmount.setText("10.00");
         panel_bettingForm.add(textField_GambleAmount, ct);
 
-        //possible winnings
+
         ct.gridx = 0;
         ct.gridy = 3;
         panel_bettingForm.add(new JLabel("Possible Winnings"));
@@ -174,7 +173,7 @@ public class PanelForGamble extends JPanel {
         label_PossibleWinnings = new JLabel("£0.00");
         panel_bettingForm.add(label_PossibleWinnings, ct);
 
-        //button to make bet or place it
+
         ct.gridx = 0;
         ct.gridy = 4;
         ct.gridwidth = 2;
@@ -182,16 +181,14 @@ public class PanelForGamble extends JPanel {
         button_MakeBet = new JButton("Make Bet");
         panel_bettingForm.add(button_MakeBet, ct);
 
-        //add action listener to the button
         setEventListeners();
 
-        //combine panels
         JPanel panel_Top = new JPanel(new BorderLayout());
         panel_Top.add(panel_odds, BorderLayout.CENTER);
         panel_Top.add(panel_bettingForm, BorderLayout.EAST);
         panel.add(panel_Top, BorderLayout.CENTER);
 
-        //add refresh button and keep at button
+
         JButton button_refresh = new JButton("Odds Refresh");
         button_refresh.addActionListener(new ActionListener() {
             @Override
@@ -208,7 +205,7 @@ public class PanelForGamble extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("History of Bets"));
 
-        //bets table
+
         String[] name_of_columns ={"Race","Betting Horse", "Gamble Amount", "Odds", "Result", "Winnings"};
         historyOfBets_TModel = new DefaultTableModel(name_of_columns,0){
             @Override
@@ -220,10 +217,10 @@ public class PanelForGamble extends JPanel {
         JScrollPane historyScroll = new JScrollPane(historyOfBetsTable);
         panel.add(historyScroll, BorderLayout.CENTER);
 
-        //betting stats added
+
         JPanel panel_stats = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        label_Stats = new JLabel("Bets Rate Success: 0 | Total Earnings: £0.00");
-        panel_stats.add(label_Stats);
+        JLabel label_stats = new JLabel("Bets Rate Success: 0 | Total Earnings: £0.00");
+        panel_stats.add(label_stats);
         panel.add(panel_stats, BorderLayout.SOUTH);
 
         return panel;
@@ -261,12 +258,12 @@ public class PanelForGamble extends JPanel {
             }
         });
 
-         button_MakeBet.addActionListener(new ActionListener() {
-             @Override
-             public void actionPerformed(ActionEvent e) {
-                 makeBet();
-             }
-         });
+        button_MakeBet.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                makeBet();
+            }
+        });
     }
 
     private void selector_HorseUpdate(){
@@ -287,50 +284,44 @@ public class PanelForGamble extends JPanel {
             return;
         }
 
-        //tracking of how condition affects the odds
+
         String trackCond = mainGUI.getCondition_OfTrack();
         String trackShape = mainGUI.getShapeOfTrack();
 
-        //calc base odds each horse thus
+
         for(Horse horse : horses){
             double confidence = horse.getConfidence();
 
             double defaultOdds = 1.0 / confidence;
 
-            //adjust odds based on track condition
+
             double adjustedOdds = defaultOdds;
 
             if(trackCond.equals("Muddy")){
-                //track being muddy makes the race less predictable
-                adjustedOdds *= 1.2; // increase odds by 20%
+
+                adjustedOdds *= 1.2;
             }else if(trackCond.equals("Icy")){
-                //very unpredictable
-                adjustedOdds *= 1.5; // increase odds by 50%
+
+                adjustedOdds *= 1.5;
             }
 
             if(trackShape.equals("Figure-Eight")){
-                //horses that are agile will be favored(assuming all are)
+
                 adjustedOdds *= 1.1;
             }else if(trackShape.equals("Zigzag")){
-                //zigzag is somewhat unpredictable
+
                 adjustedOdds *= 1.3;
             }
-            /*take in to consideration if the horse has fallen recently,
-            * because a horse that has fallen may be at risk therefore, increase the odds
-            * by 20 percent for fallen horses*/
-            if (horse.hasFallen()){
-                adjustedOdds *= 1.2;
-            }
 
-            //simulate betting(add randomness)
+
             adjustedOdds *= (0.9+ Math.random()*0.2);
 
-            //round to 2 decimal places
+
             adjustedOdds = Math.round(adjustedOdds * 100.0) / 100.0;
 
             horseOddsMap.put(horse.getName(), adjustedOdds);
 
-            //then add it to the table
+
             table_OddsModel.addRow(new Object[]{horse.getName(), String.format("%.2f",adjustedOdds)});
         }
         updateWinPotential();
@@ -346,10 +337,6 @@ public class PanelForGamble extends JPanel {
 
         try{
             gableAmount = Double.parseDouble(textField_GambleAmount.getText());
-            if(gableAmount<=0){
-                label_PossibleWinnings.setText("Invalid Amount");
-                return;
-            }
         } catch (NumberFormatException e) {
             label_PossibleWinnings.setText("Amount Invalid");
             return;
@@ -395,11 +382,11 @@ public class PanelForGamble extends JPanel {
             return;
         }
 
-        //update the balance
+
         inSimulatorBalance -= gambleAmount;
         label_balance.setText("Simulator Balance: £" + String.format("%.2f", inSimulatorBalance));
 
-        //create a betting record
+
         BettingRecord bRecord = new BettingRecord();
         bRecord.setRace_number(historyOfBets.size()+1);
         bRecord.setHorses_name(selected_Horse);
@@ -409,13 +396,10 @@ public class PanelForGamble extends JPanel {
         bRecord.setGamble_winnings(0.0);
 
         historyOfBets.add(bRecord);
-        //add the history to the table
-       historyOfBets_TModel.addRow(new Object[]{bRecord.getRace_number(),
-       bRecord.getHorses_name(), String.format("£%.2f", bRecord.getGamble_amount()), String.format("%.2f", bRecord.getGamble_odds()),
-       bRecord.getResult(), String.format("£%.2f", bRecord.getGamble_winnings())});
 
-        JOptionPane.showMessageDialog(this, "Your bet has been successfully placed on "+selected_Horse+
-                " for £"+String.format("%.2f", gambleAmount), "Bet Placed", JOptionPane.INFORMATION_MESSAGE);
+        historyOfBets_TModel.addRow(new Object[]{bRecord.getRace_number(), bRecord.getHorses_name(), String.format("£%.2f", bRecord.getGamble_amount()), String.format("%.2f", bRecord.getGamble_odds()), bRecord.getResult(), String.format("£%.2f", bRecord.getGamble_winnings())});
+
+        JOptionPane.showMessageDialog(this, "Your bet has been successfully placed on "+selected_Horse+ " for £"+String.format("%.2f", gambleAmount), "Bet Placed", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void betResultsUpdate(ArrayList<Horse> horses){
@@ -423,7 +407,7 @@ public class PanelForGamble extends JPanel {
             return;
         }
 
-        //look for winners
+
         ArrayList<Horse> winners = new ArrayList<>();
         for(Horse horse : horses){
             if(horse.getDistanceTravelled() >= mainGUI.getLengthOfTrack()){
@@ -431,12 +415,12 @@ public class PanelForGamble extends JPanel {
             }
         }
 
-        //update bets that are pending
+
         for(int i=0; i<historyOfBets.size(); i++ ){
             BettingRecord bet = historyOfBets.get(i);
 
             if(bet.result.equals("Pending")){
-                //check if the bet is won, or it has been lost
+
                 boolean hasWon = false;
                 for(Horse winner : winners){
                     if(bet.getHorses_name().equals(winner.getName())){
@@ -447,7 +431,7 @@ public class PanelForGamble extends JPanel {
 
                 if(hasWon){
                     bet.setResult("Won");
-                    bet.setGamble_winnings(bet.getGamble_amount() * bet.getGamble_odds());
+                    bet.setGamble_amount(bet.getGamble_amount() * bet.getGamble_odds());
                     inSimulatorBalance +=bet.getGamble_winnings();
 
                 }else{
@@ -455,25 +439,25 @@ public class PanelForGamble extends JPanel {
                     bet.setGamble_winnings(0.0);
                 }
             }
-            //update the table
+
             historyOfBets_TModel.setValueAt(bet.result, i, 4);
             historyOfBets_TModel.setValueAt(String.format("£%.2f", bet.gamble_winnings), i, 5);
 
-            //update stats
+
             bettingStatsUpdate();
         }
     }
 
-    //update the betting stats
+
     public void updateBetting(ArrayList<Horse> horses){
 
-      betResultsUpdate(horses);
+        betResultsUpdate(horses);
 
-      label_balance.setText("In simulator Balance: £" + String.format("%.2f", inSimulatorBalance));
+        label_balance.setText("In simulator Balance: £" + String.format("%.2f", inSimulatorBalance));
 
-      calcOddss();
+        calcOddss();
 
-      selector_HorseUpdate();
+        selector_HorseUpdate();
 
     }
 
@@ -494,28 +478,28 @@ public class PanelForGamble extends JPanel {
 
         double rateOFSuccess = (sumBets>0) ? ((double) sumWonBets / sumBets) * 100 : 0.0;
 
-        //update the stats label
 
-        label_Stats.setText("Betting Rate Success: " + String.format("%.2f", rateOFSuccess) +
-                "% | Total Earnings: £" + String.format("%.2f", totalEarnings));
+        JPanel panel_stats = (JPanel) historyOfBetsTable.getParent().getParent().getComponent(1);
+        JLabel label_stats = (JLabel) panel_stats.getComponent(0);
+        label_stats.setText("Betting Rate Success: " + String.format("%.2f", rateOFSuccess) + "% | Total Earnings: £" + String.format("%.2f", totalEarnings));
     }
 
     public void resetBets(){
-        //mark all the pending bets as cancelled
+
         for(int i=0; i<historyOfBets.size(); i++){
             BettingRecord bet = historyOfBets.get(i);
 
             if(bet.result.equals("Pending")){
                 bet.result = "Bet Cancelled";
-                inSimulatorBalance += bet.getGamble_amount(); //you get a refund
+                inSimulatorBalance += bet.getGamble_amount();
 
                 historyOfBets_TModel.setValueAt(bet.getResult(), i, 4);
             }
         }
-        //update the balance
+
         label_balance.setText("In simulator Balance: £" + String.format("%.2f", inSimulatorBalance));
 
-        //do calculation of odds again
+
         calcOddss();
     }
 }
