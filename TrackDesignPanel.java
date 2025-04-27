@@ -51,7 +51,7 @@ public class TrackDesignPanel extends JPanel {
                 int val = sliderForTrackLength.getValue();
                 labelForTrackLength.setText(val + " units");
 
-                //update the preview if the slider is released only
+
                 if (!sliderForTrackLength.getValueIsAdjusting()) {
                     previewPanelForTrack.repaint();
                 }
@@ -137,18 +137,13 @@ public class TrackDesignPanel extends JPanel {
 
             //draw inside the oval i.e. empty space
             ghc2d.setColor(Color.WHITE);
-            //ghc2d.fillOval(pad+30,pad+30,widthOval-60,heightOval-60);
+
 
             int laneWidth = 10;  // Same as your lane line spacing
             int totalLaneWidth = LANES * laneWidth;
 
-// Hollow out based on total lane thickness
-            ghc2d.fillOval(
-                    pad + totalLaneWidth,
-                    pad + totalLaneWidth,
-                    widthOval - 2 * totalLaneWidth,
-                    heightOval - 2 * totalLaneWidth
-            );
+
+            ghc2d.fillOval(pad + totalLaneWidth, pad + totalLaneWidth, widthOval - 2 * totalLaneWidth, heightOval - 2 * totalLaneWidth);
 
             //draw the lanes of the track
             ghc2d.setColor(Color.BLACK);

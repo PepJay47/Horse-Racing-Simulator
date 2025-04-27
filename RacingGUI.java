@@ -73,7 +73,6 @@ public class RacingGUI extends JFrame {
         horses.forEach(horse -> horse.goBackToStart());
         activeRace = new Race(lengthOfTrack);
         horses.forEach(activeRace::addHorse);
-//        bettingPanel.resetBets();
         tabPane.setSelectedComponent(racePanel);
         racePanel.setRace(activeRace);
 

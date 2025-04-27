@@ -1,4 +1,4 @@
-// ViewRacePanel.java
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -137,15 +137,13 @@ public class ViewRacePanel extends JPanel {
         g.drawString("Finish", w-60, 20);
     }
 
-    /**
-     * Called by RacingGUI to start the race.
-     */
+
     public void setRace(Race race) {
         this.activeRace     = race;
         this.raceInProgress = true;
         infoUpdate();
 
-        // Timer drives the simulation one step at a time
+
         new Timer(100, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -164,12 +162,12 @@ public class ViewRacePanel extends JPanel {
         }).start();
     }
 
-    /** External hook to know when race is done */
+
     public void setOnRaceComplete(Runnable r) {
         this.onRaceComplete = r;
     }
 
-    /** Force a repaint/info‐update if you need it */
+
     public void refresh() {
         if (raceInProgress) {
             trackPanel.repaint();

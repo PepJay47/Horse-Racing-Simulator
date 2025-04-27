@@ -250,11 +250,6 @@ public class CustomizeHorsePanel extends JPanel {
     }
 
 
-
-
-
-
-
     private void  removeHorse(){
         int rowSelect = horseTable.getSelectedRow();
         if(rowSelect>=0){
@@ -273,7 +268,7 @@ public class CustomizeHorsePanel extends JPanel {
     }
 
     private void add_Horse(){
-        //validate input
+
         String name = textField_name.getText();
         String txtSymbol = textField_symbol.getText();
 
@@ -311,7 +306,7 @@ public class CustomizeHorsePanel extends JPanel {
 
     }
 
-    //slider controls these values
+
     private void configure_Breed_Confidence() {
         confidenceOFBreed = new HashMap<>();
         confidenceOFBreed.put("Appaloosa", 0.5);
@@ -326,7 +321,7 @@ public class CustomizeHorsePanel extends JPanel {
     private int getGearAdjustment(String gear) {
         return switch (gear) {
             case "Horse Shoes(racing)" -> 5;
-            case "Saddle(Light Wight)" -> 10; // (note typo here: "Light Wight" should be "Light Weight")
+            case "Saddle(Light Wight)" -> 10;
             case "SaddleS(Standard)"   -> -5;
             default -> 0;
         };

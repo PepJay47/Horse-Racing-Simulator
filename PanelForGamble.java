@@ -487,12 +487,7 @@ public class PanelForGamble extends JPanel {
         double rateOFSuccess = (sumBets>0) ? ((double) sumWonBets / sumBets) * 100 : 0.0;
 
 
-        labelStats.setText(
-                String.format(
-                        "Betting Rate Success: %.2f%% | Total Earnings: £%.2f",
-                        rateOFSuccess, totalEarnings
-                )
-        );
+        labelStats.setText(String.format("Betting Rate Success: %.2f%% | Total Earnings: £%.2f", rateOFSuccess, totalEarnings));
 
 
     }

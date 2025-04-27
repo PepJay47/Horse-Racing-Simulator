@@ -122,7 +122,7 @@ public class Horse {
         };
     }
 
-    //gear effect
+    //gear effect on the horse -> the equipment used on the horse.
     private double computeGearMultiplier(String gear) {
         return switch (gear) {
             case "Horse Shoes(racing)"    -> 1.74;
