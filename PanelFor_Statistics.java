@@ -381,25 +381,10 @@ public class PanelFor_Statistics extends JPanel {
 
             ResultI.averageSpeed = horse.getDistanceTravelled() / raceTime;
 
-            double currConfidence = horse.getConfidence();
-            double confidenceChange = 0;
-
-            if(ResultI.isWinner){
-                confidenceChange = 0.5;
-            }
-            else if(ResultI.hasFallen){
-                confidenceChange -= 0.5;
-            }
-            else{
-                confidenceChange = (1.0 / ResultI.position)*0.02;
-            }
-
-            double AfterConfidence = Math.min(1.0, Math.max(0.1, currConfidence + confidenceChange));
-            ResultI.confidenceChange = AfterConfidence;
+            ResultI.confidenceChange = 0.0;
 
             horseHistoryList.add(ResultI);
             horseHistory.put(horse_name, horseHistoryList);
-            horse.setConfidence(AfterConfidence);
         }
         updateSelector();
         horseStatsUpdate();
