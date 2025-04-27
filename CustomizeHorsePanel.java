@@ -10,9 +10,6 @@ import java.util.HashMap;
 public class CustomizeHorsePanel extends JPanel {
     private RacingGUI mainGUI;
 
-    private boolean inEdit = false;
-    private Horse theHorseBeingEdited = null;
-
     private JTextField textField_name;
     private JTextField textField_symbol;
     private JSlider sliderConfidence;
@@ -52,7 +49,7 @@ public class CustomizeHorsePanel extends JPanel {
         tModel = new DefaultTableModel(nameOfColumns,0){
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // make cells non-editable
+                return false; // user will not be able to edit the cell
             }
         };
 
@@ -81,7 +78,7 @@ public class CustomizeHorsePanel extends JPanel {
         edit_a_horse.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                    editHorse();
+                editHorse();
             }
         });
 
@@ -111,29 +108,8 @@ public class CustomizeHorsePanel extends JPanel {
         panel.add(new JLabel("Symbol for Horse:"), c);
 
         c.gridx =1;
-
-
-        textField_symbol = new JTextField(2);
-        textField_symbol.setFont(new Font("Segoe UI Emohi", Font.PLAIN, 20));
-        JButton emojiBTN = new JButton("Emoji");
-        emojiBTN.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
-        emojiBTN.setToolTipText("Select from Popular Horse Symbols");
-
-        JPopupMenu popupMenuEmoji = new JPopupMenu();
-        String[] emojis = {"🐴","🐎","🐴‍❄️","🐴‍☠️","🐴‍🌈","🐴‍🚀","🐴‍🚒","🐴‍🦺","🐴‍🦼","🐴‍🦯"};
-
-        for (String emoji : emojis) {
-            JMenuItem itemEmoji = new JMenuItem(emoji);
-            itemEmoji.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
-            itemEmoji.addActionListener(e-> textField_symbol.setText(emoji));
-            popupMenuEmoji.add(itemEmoji);
-        }
-        emojiBTN.addActionListener(e -> popupMenuEmoji.show(emojiBTN, 0, emojiBTN.getHeight()));
-        JPanel panel_Symbol = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panel_Symbol.add(textField_symbol);
-        panel_Symbol.add(emojiBTN);
-        panel.add(panel_Symbol, c);
-
+        textField_symbol = new JTextField(1);
+        panel.add(textField_symbol, c);
 
         //select breed
         c.gridx = 0;
@@ -214,6 +190,30 @@ public class CustomizeHorsePanel extends JPanel {
             }
         });
 
+        comboBoxGear.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedGear = (String) comboBoxGear.getSelectedItem();
+
+                switch (selectedGear){
+                    case "Horse Shoes(racing)":
+                        sliderConfidence.setValue(Math.min(100,sliderConfidence.getValue()+5));
+                        break;
+                    case "Saddle(Light Wight)":
+                        sliderConfidence.setValue(Math.min(100,sliderConfidence.getValue()+10));
+                        break;
+                    case "SaddleS(Standard)":
+                        sliderConfidence.setValue(Math.min(100,sliderConfidence.getValue()-5));
+                        break;
+                    case "Horse Shoes(Standard)":
+                        break;
+                    case null:
+                    default:
+
+                }
+            }
+        });
+
         add_a_horse.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -230,22 +230,18 @@ public class CustomizeHorsePanel extends JPanel {
 
             for(Horse horse: mainGUI.getHorses()){
                 if(horse.getName().equals(hName)){
-
-                    theHorseBeingEdited = horse;
-
                     textField_name.setText(horse.getName());
                     textField_symbol.setText(String.valueOf(horse.getSymbol()));
                     sliderConfidence.setValue((int)(horse.getConfidence()*100));
 
-                    comboBoxBreed.setSelectedItem(tModel.getValueAt(selectRow,2));
-                    comboBoxColour.setSelectedItem(tModel.getValueAt(selectRow,3));
-                    comboBoxGear.setSelectedItem(tModel.getValueAt(selectRow,4));
+                    comboBoxBreed.setSelectedItem(horse.getBreed());
+                    comboBoxColour.setSelectedItem(horse.getColour());
+                    comboBoxGear.setSelectedItem(horse.getGear());
 
-                   tModel.removeRow(selectRow);
-                   add_a_horse.setText("Save Changes");
-                   inEdit = true;
+                    mainGUI.removeHorse(horse);
+                    tModel.removeRow(selectRow);
 
-                    JOptionPane.showMessageDialog(this,"Edit the horse and click 'Save Changes' to Update","Edit horse",JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this,"Edit the horse and click 'add horse' to save changes","Edit horse",JOptionPane.INFORMATION_MESSAGE);
                     break;
                 }
             }
@@ -265,16 +261,11 @@ public class CustomizeHorsePanel extends JPanel {
         if(rowSelect>=0){
             String hName = (String) tModel.getValueAt(rowSelect,0);
 
-            //confirmation dialog
-            int confirmation = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove this horse?","Confirmation",JOptionPane.YES_NO_OPTION);
-
-            if(confirmation==JOptionPane.YES_OPTION){
-                for(Horse horse: mainGUI.getHorses()){
-                    if(horse.getName().equals(hName)){
-                        mainGUI.removeHorse(horse);
-                        tModel.removeRow(rowSelect);
-                        break;
-                    }
+            for(Horse horse : mainGUI.getHorses()){
+                if(horse.getName().equals(hName)){
+                    mainGUI.removeHorse(horse);
+                    tModel.removeRow(rowSelect);
+                    break;
                 }
             }
         }else{
@@ -289,58 +280,36 @@ public class CustomizeHorsePanel extends JPanel {
 
 
         if(name.isEmpty()){
-            JOptionPane.showMessageDialog(this, "Enter horse name plase","Error(input)",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Enter horse name please","Error(No name)",JOptionPane.ERROR_MESSAGE);
             return;
         }
         if(txtSymbol.isEmpty()){
-            JOptionPane.showMessageDialog(this, "Enter horse symbol plase","Error(input)",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Enter horse symbol please","Error(N0 symbol)",JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-
-
-        char Symbol;
-        if(!txtSymbol.isEmpty()){
-            Symbol = txtSymbol.charAt(0);
-        }else {
-            Symbol = 'H';
-        }
-
+        char Symbol = txtSymbol.charAt(0);
 
         String horseBreed = (String) comboBoxBreed.getSelectedItem();
         String horseColour = (String) comboBoxColour.getSelectedItem();
-        String gear = (String) comboBoxGear.getSelectedItem();
+        String gear = (String)comboBoxGear.getSelectedItem();
         double confidence = sliderConfidence.getValue()/100.0;
 
         try{
-            if(inEdit && theHorseBeingEdited !=null){
-                theHorseBeingEdited.setSymbol(Symbol);
-                theHorseBeingEdited.setConfidence(confidence);
+            Horse horse = new Horse(Symbol,name, confidence,horseBreed,gear,horseColour);
 
-                Object[] rData ={theHorseBeingEdited.getName(), String.valueOf(Symbol), horseBreed, horseColour,gear, String.format("%.2f",confidence)};
+            mainGUI.addHorse(horse);
 
-                tModel.addRow(rData);
+            Object[] rData = {name,String.valueOf(Symbol), horseBreed, horseColour, gear, String.format("%.2f",confidence)};
+            tModel.addRow(rData);
 
-                //resets the edit mode
-                inEdit = false;
-                theHorseBeingEdited = null;
-                add_a_horse.setText("Add a Horse Please");
-                JOptionPane.showMessageDialog(this,"Changes have been saved","Horse Edited",JOptionPane.INFORMATION_MESSAGE);
-            }else{
-                //make/create a new horse
-                Horse newHorse = new Horse(Symbol, name, confidence);
-                mainGUI.addHorse(newHorse);
-
-                Object[] rData = {name, String.valueOf(Symbol), horseBreed, horseColour, gear, String.format("%.2f", confidence)};
-
-                tModel.addRow(rData);
-            }
-            //clear the text fields
             textField_name.setText("");
             textField_symbol.setText("");
         }catch(IllegalArgumentException ex){
             JOptionPane.showMessageDialog(this,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
         }
+
+
     }
 
     private void configure_Breed_Confidence() {
