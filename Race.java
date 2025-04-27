@@ -62,7 +62,8 @@ public class Race {
             theHorse.moveForward();
         }
 
-        if (Math.random() < 0.1 * theHorse.getConfidence() * theHorse.getConfidence()) {
+
+        if (Math.random() < 0.1 *(1-(theHorse.getConfidence() * theHorse.getConfidence()))) {
             theHorse.fall();
         }
     }

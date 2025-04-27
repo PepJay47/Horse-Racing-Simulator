@@ -27,6 +27,12 @@ public class PanelForGamble extends JPanel {
     private HashMap<String, Double> horseOddsMap;
     private ArrayList<BettingRecord> historyOfBets;
 
+    private JLabel labelStats;
+
+    public void refresh() {
+        bettingStatsUpdate();
+    }
+
     private class BettingRecord{
         String horses_name;
         int race_number;
@@ -219,8 +225,8 @@ public class PanelForGamble extends JPanel {
 
 
         JPanel panel_stats = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel label_stats = new JLabel("Bets Rate Success: 0 | Total Earnings: £0.00");
-        panel_stats.add(label_stats);
+        labelStats = new JLabel("Bets Rate Success: 0 | Total Earnings: £0.00");
+        panel_stats.add(labelStats);
         panel.add(panel_stats, BorderLayout.SOUTH);
 
         return panel;
@@ -431,8 +437,9 @@ public class PanelForGamble extends JPanel {
 
                 if(hasWon){
                     bet.setResult("Won");
-                    bet.setGamble_amount(bet.getGamble_amount() * bet.getGamble_odds());
-                    inSimulatorBalance +=bet.getGamble_winnings();
+                    double yourWinnings = bet.getGamble_amount() * bet.getGamble_odds();
+                    bet.setGamble_winnings(yourWinnings);
+                    inSimulatorBalance +=yourWinnings;
 
                 }else{
                     bet.setResult("Lost");
@@ -444,8 +451,9 @@ public class PanelForGamble extends JPanel {
             historyOfBets_TModel.setValueAt(String.format("£%.2f", bet.gamble_winnings), i, 5);
 
 
-            bettingStatsUpdate();
+
         }
+        bettingStatsUpdate();
     }
 
 
@@ -471,7 +479,7 @@ public class PanelForGamble extends JPanel {
                 sumBets++;
                 if(bet.getResult().equals("Won")){
                     sumWonBets++;
-                    totalEarnings += (bet.getGamble_winnings() + bet.getGamble_amount());
+                    totalEarnings += bet.getGamble_winnings();
                 }
             }
         }
@@ -479,9 +487,14 @@ public class PanelForGamble extends JPanel {
         double rateOFSuccess = (sumBets>0) ? ((double) sumWonBets / sumBets) * 100 : 0.0;
 
 
-        JPanel panel_stats = (JPanel) historyOfBetsTable.getParent().getParent().getComponent(1);
-        JLabel label_stats = (JLabel) panel_stats.getComponent(0);
-        label_stats.setText("Betting Rate Success: " + String.format("%.2f", rateOFSuccess) + "% | Total Earnings: £" + String.format("%.2f", totalEarnings));
+        labelStats.setText(
+                String.format(
+                        "Betting Rate Success: %.2f%% | Total Earnings: £%.2f",
+                        rateOFSuccess, totalEarnings
+                )
+        );
+
+
     }
 
     public void resetBets(){

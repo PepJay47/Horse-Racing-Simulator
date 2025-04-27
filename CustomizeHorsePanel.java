@@ -25,6 +25,7 @@ public class CustomizeHorsePanel extends JPanel {
     private JButton edit_a_horse;
 
     private HashMap<String,Double> confidenceOFBreed;
+    private String lastSelectedGear = null;
 
 
     public CustomizeHorsePanel(RacingGUI mainGUI) {
@@ -190,27 +191,25 @@ public class CustomizeHorsePanel extends JPanel {
             }
         });
 
+
+
+
         comboBoxGear.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedGear = (String) comboBoxGear.getSelectedItem();
+                String newGear = (String) comboBoxGear.getSelectedItem();
+                if (newGear == null) return;
 
-                switch (selectedGear){
-                    case "Horse Shoes(racing)":
-                        sliderConfidence.setValue(Math.min(100,sliderConfidence.getValue()+5));
-                        break;
-                    case "Saddle(Light Wight)":
-                        sliderConfidence.setValue(Math.min(100,sliderConfidence.getValue()+10));
-                        break;
-                    case "SaddleS(Standard)":
-                        sliderConfidence.setValue(Math.min(100,sliderConfidence.getValue()-5));
-                        break;
-                    case "Horse Shoes(Standard)":
-                        break;
-                    case null:
-                    default:
+                int adjustment = getGearAdjustment(newGear);
 
+                if (lastSelectedGear != null) {
+                    int previousAdjustment = getGearAdjustment(lastSelectedGear);
+                    sliderConfidence.setValue(Math.max(0, Math.min(100, sliderConfidence.getValue() - previousAdjustment)));
                 }
+
+                sliderConfidence.setValue(Math.max(0, Math.min(100, sliderConfidence.getValue() + adjustment)));
+
+                lastSelectedGear = newGear;
             }
         });
 
@@ -312,14 +311,25 @@ public class CustomizeHorsePanel extends JPanel {
 
     }
 
+    //slider controls these values
     private void configure_Breed_Confidence() {
         confidenceOFBreed = new HashMap<>();
-        confidenceOFBreed.put("Appaloosa",0.8);
-        confidenceOFBreed.put("Standardbred",0.75);
-        confidenceOFBreed.put("Arabian ",0.7);
-        confidenceOFBreed.put("Thoroughbred",0.65);
-        confidenceOFBreed.put("Quarter Horse",0.6);
+        confidenceOFBreed.put("Appaloosa", 0.5);
+        confidenceOFBreed.put("Standardbred", 0.6);
+        confidenceOFBreed.put("Arabian", 0.9);
+        confidenceOFBreed.put("Thoroughbred", 0.8);
+        confidenceOFBreed.put("Quarter Horse", 0.7);
 
+    }
+
+
+    private int getGearAdjustment(String gear) {
+        return switch (gear) {
+            case "Horse Shoes(racing)" -> 5;
+            case "Saddle(Light Wight)" -> 10; // (note typo here: "Light Wight" should be "Light Weight")
+            case "SaddleS(Standard)"   -> -5;
+            default -> 0;
+        };
     }
 
     public void refreshTable(){

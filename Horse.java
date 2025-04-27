@@ -110,14 +110,14 @@ public class Horse {
 
 
 
-    //breed effect
+    //breed effect -> natural speed of the animal.
     private double computeBreedMultiplier(String breed) {
         return switch (breed) {
-            case "Quarter Horse"   -> 1.2;
-            case "Arabian"         -> 1.15;
-            case "Thoroughbred"    -> 1.1;
-            case "Standardbred"    -> 1.05;
-            case "Appaloosa"       -> 1.0;
+            case "Quarter Horse"   -> 1.7;
+            case "Arabian"         -> 1.9;
+            case "Thoroughbred"    -> 1.8;
+            case "Standardbred"    -> 1.6;
+            case "Appaloosa"       -> 1.59;
             default                -> 1.0;
         };
     }
@@ -125,10 +125,10 @@ public class Horse {
     //gear effect
     private double computeGearMultiplier(String gear) {
         return switch (gear) {
-            case "Horse Shoes(racing)"    -> 1.2;
-            case "SaddleL(Light Weight)"  -> 1.1;
-            case "SaddleS(Standard)"      -> 1.0;
-            case "Horse Shoes(Standard)"  -> 1.0;
+            case "Horse Shoes(racing)"    -> 1.74;
+            case "SaddleL(Light Weight)"  -> 1.4;
+            case "SaddleS(Standard)"      -> 1.1;
+            case "Horse Shoes(Standard)"  -> 1.1;
             default                       -> 1.0;
         };
     }
