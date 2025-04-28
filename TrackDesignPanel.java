@@ -7,7 +7,7 @@ public class TrackDesignPanel extends JPanel {
 
     private RacingGUI mainGUI;
 
-
+    // GUI components
     private JSlider sliderForTrackLength;
     private JLabel labelForTrackLength;
     private JSpinner spinnerForLaneCount;
