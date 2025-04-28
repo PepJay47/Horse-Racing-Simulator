@@ -1,4 +1,4 @@
-// RacingGUI.java
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -47,6 +47,14 @@ public class RacingGUI extends JFrame {
         tabPane.addTab("Statistics", panelStats);
         tabPane.addTab("Betting", bettingPanel);
 
+        tabPane.addChangeListener(e -> {
+            if (tabPane.getSelectedComponent() == bettingPanel) {
+                bettingPanel.refresh();
+            }
+        });
+
+
+
         main_Panel.add(tabPane, BorderLayout.CENTER);
         main_Panel.add(createButtonPanel(), BorderLayout.SOUTH);
         setContentPane(main_Panel);
@@ -65,9 +73,9 @@ public class RacingGUI extends JFrame {
         horses.forEach(horse -> horse.goBackToStart());
         activeRace = new Race(lengthOfTrack);
         horses.forEach(activeRace::addHorse);
-        bettingPanel.resetBets();
         tabPane.setSelectedComponent(racePanel);
         racePanel.setRace(activeRace);
+
         racePanel.setOnRaceComplete(() -> {
             panelStats.updateStats(horses);
             bettingPanel.updateBetting(horses);
